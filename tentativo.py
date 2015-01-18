@@ -65,55 +65,52 @@ def main():
     '''
     dirs = os.listdir(path_out)
     for d in dirs:
-        print '\n\tStart working on '+ d
-        #adjust(path_in+d+'/')
-        plot_def(d)
-        print '\n\tEnd working on ' + d
+        if string.count(d, 'jpg') == 0:# and string.count(d, 't5'):
+            print '\n\tStart working on '+ d
+            adjust(path_out, d)
+            plot_def(d)
+            print '\n\tEnd working on ' + d
 
     print '\n\tFinally End\n'
 
-def adjust(path):
+def adjust(path, directory):
 
     print '\n\tWithin adjust function\n'
 
     global matrix_Logdelta_LogT_H2
     LoadMatrix(filename=matrix_Logdelta_LogT_H2)
     global T ; global Dens ; global FH2
-    global path_out
 
-    tmin = T.min(); tmax = T.max()
-    dmin = Dens.min(); dmax = Dens.max()
-    #print str(tmin)+'\t'+str(tmax)
-    #print str(dmin)+'\t'+str(dmax)
-    files = os.listdir(path)
-    directory = path[40:-1]
+    files = os.listdir(path+directory)
     for name in files:
         if string.count(name, 'time') != 0:
-            print '\tWorking on '+name
-            matrix = np.loadtxt(path+name, comments = '#')
-            if matrix.size < 4:
-                print '\n\t'+name+' empty\n'
+            #print '\tWorking on '+name
+            matrix = np.loadtxt(path+directory+'/'+name, comments = '#')
+            if matrix.size < 6:
+                print '\n\t'+name+' has '+str(matrix.size / 3)+' lines\n'
+                if matrix.size == 3:
+                    mt = np.zeros((3, 3), dtype = float)
+                    mt[0:] = matrix[0:]
+                    fp = open(path+directory+'/'+name, 'w')
+                    np.savetxt(fp, mt, fmt='%g', delimiter='\t', newline='\n')
+                    fp.flush(); fp.close()
+                    print '\t-> Corrected\n'
+                elif matrix.size == 6:
+                #elif matrix.size > 3 and matrix.size < 9:
+                    mt = np.zeros((3, 3), dtype = float)
+                    mt[0] = matrix[0]
+                    mt[1] = matrix[0]
+                    mt[2] = matrix[1]
+                    fp = open(path+directory+'/'+name, 'w')
+                    np.savetxt(fp, mt, fmt='%g', delimiter='\t', newline='\n')
+                    fp.flush();fp.close()
+                    print '\t-> Corrected\n'
+                else:
+                    print '\n\tFile'+name+' have some problem.....\n'
+
             else:
-                matrix = matrix.T
-                time = matrix[0,:]
-                rho_atom = matrix[1,:]
-                t_atom = matrix[2,:]
-                control = 0
-                #newmat = np.array([[0.]*time.size for x in range(3)])
-                newmat = np.zeros((3, time.size),dtype=float)
-                lst = range(time.size)
-                for j in lst:
-                    if rho_atom[j] > dmin and rho_atom[j] < dmax and t_atom[j] >= tmin and t_atom[j] <= tmax:
-                        newmat[0][j] += time[j]
-                        newmat[1][j] += rho_atom[j]
-                        newmat[2][j] += t_atom[j]
-                        control += 1
-                if control > 2.:
-                    #toprint = np.zeros((3, control),dtype=float)
-                    toprint = newmat.T[:control,:]
-                    wr = open(path_out+directory+'_boundary_ctrl_T'+name[-7:], 'w')
-                    np.savetxt(wr, toprint, fmt = '%e', delimiter = '\t', newline = '\n')
-                    wr.close()
+                print '\tFile '+name+' have enough data'
+                #print '\n\t'+name+' has '+str(matrix.size)+' lines\n'
 
         else:
             print "\n\tFile " + name + " is for Blitz&Rosolowsky's plot -> Continue\n"
@@ -138,14 +135,6 @@ def plot_def(directory):
     numlev = 15
     dmag0 = (v_max - v_min) / float(numlev)
     levels0 = np.arange(numlev) * dmag0 + v_min
-
-
-    plt.figure()#figsize=(30,10))
-    plt.title('Paths')
-    figura = plt.contourf(Dens,T,H2,levels0,extend='both', cmap = cm.hot)
-    cbar = plt.colorbar(figura,format='%3.1f', shrink=0.7)#, orientation = 'horizontal')
-    cbar.set_ticks(np.linspace(v_min,v_max,num=levels0.size,endpoint=True))
-    cbar.set_label('H$_{2}$ fraction',fontsize=20)
     
     #path's plot
     files = os.listdir(path_out+directory)
@@ -155,15 +144,13 @@ def plot_def(directory):
     for name in files:
         #if string.count(name, 'boundary') != 0 and string.count(name, directory) != 0 and string.count(name,'jpg') == 0:
         if string.count(name, 'time') != 0:
-            mat = np.loadtxt(path_out+directory+'/'+name, comments = '#')
-            if mat.size >= 5:
-                fls[j] = directory+'/'+name
-                press[j] = float(name[(len(name)-7):-4])
-                #print name+'\t' + str(press[j]) + 'damn'
-                j += 1
-            else:
-                print '\n\tFile %s is empty'%(name)
+            #mat = np.loadtxt(path_out+directory+'/'+name, comments = '#')
+            #if mat.size >= 5:
+            fls[j] = directory+'/'+name
+            press[j] = float(name[(len(name)-7):-4])
+            j += 1
         else:
+            br = path_out + directory + '/' + name
             print "\n\tFile " + name + " is for Blitz&Rosolowsky's plot -> Continue\n"
 
     if j == len(files):
@@ -181,6 +168,16 @@ def plot_def(directory):
         h[ind] = ((p-pmin) / (pmax-pmin))*250.
         ind += 1
     cdef = [colorsys.hsv_to_rgb(x/360., 1., 1.) for x in h]
+    
+    #UM matrix plot
+    plt.figure()#figsize=(30,10))
+    plt.title('Paths')
+    figura = plt.contourf(Dens,T,H2,levels0,extend='both', cmap = cm.hot)
+    cbar = plt.colorbar(figura,format='%3.1f', shrink=0.7)#, orientation = 'horizontal')
+    cbar.set_ticks(np.linspace(v_min,v_max,num=levels0.size,endpoint=True))
+    cbar.set_label('H$_{2}$ fraction',fontsize=20)
+    print "\n\tUmberto's matrix plotted\n"
+
     k = 0
     for name in filedef:
         print '\tPlotting ' + name[(len(directory)+1):] + ' file'
