@@ -65,7 +65,7 @@ def main():
     '''
     dirs = os.listdir(path_out)
     for d in dirs:
-        if string.count(d, 'jpg') == 0:# and string.count(d, 't5'):
+        if string.count(d, 'jpg') == 0 and string.count(d, 't5'):
             print '\n\tStart working on '+ d
             adjust(path_out, d)
             plot_def(d)
@@ -86,7 +86,7 @@ def adjust(path, directory):
         if string.count(name, 'time') != 0:
             #print '\tWorking on '+name
             matrix = np.loadtxt(path+directory+'/'+name, comments = '#')
-            if matrix.size < 6:
+            if matrix.size <= 6:
                 print '\n\t'+name+' has '+str(matrix.size / 3)+' lines\n'
                 if matrix.size == 3:
                     mt = np.zeros((3, 3), dtype = float)
@@ -96,7 +96,6 @@ def adjust(path, directory):
                     fp.flush(); fp.close()
                     print '\t-> Corrected\n'
                 elif matrix.size == 6:
-                #elif matrix.size > 3 and matrix.size < 9:
                     mt = np.zeros((3, 3), dtype = float)
                     mt[0] = matrix[0]
                     mt[1] = matrix[0]
@@ -110,8 +109,6 @@ def adjust(path, directory):
 
             else:
                 print '\tFile '+name+' have enough data'
-                #print '\n\t'+name+' has '+str(matrix.size)+' lines\n'
-
         else:
             print "\n\tFile " + name + " is for Blitz&Rosolowsky's plot -> Continue\n"
             continue
