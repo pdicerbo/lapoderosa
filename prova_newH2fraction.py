@@ -469,7 +469,7 @@ def MolecularProfileTc():
             fp.flush()
             index += 1
     if pstr > 1:
-        line = '#Pressure %g at temperature %g is out of bound\n'%(pstart, tstart)
+        line = '#(Log10)Pressure %g at temperature %g is out of bound\n'%(pstart, tstart)
         fp.write(line)
     fp.write('# Done!')
     fp.flush()
@@ -504,7 +504,7 @@ def time_int(press, Pmass, Density, T_a, tcool, fh2, time, tstep, path):
     dmin = Dens.min(); dmax = Dens.max()
     dmin = 10.**dmin; dmax = 10.**dmax
     t = 0.
-    ctrl = 3
+    ctrl = 2
     while t < time:
         if ma <= 0. or press*mu_c*PROTONMASS/Temp < dmin or press*mu_c*PROTONMASS/Temp > dmax:
             if ma <= 0.:
@@ -541,7 +541,7 @@ def time_int(press, Pmass, Density, T_a, tcool, fh2, time, tstep, path):
             mh2 += ma*mass_f*tfact
             ma -= ma*mass_f*tfact
             tmp = Temp
-            if index == 10 and ctrl == 3:
+            if index == 10 and ctrl == 2:
                 line = '%e\t%e\t%e\n'%(t,np.log10(Rho_a), np.log10(Temp))
                 wr.write(line)
                 filectrl += 1.
