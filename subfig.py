@@ -17,36 +17,6 @@ path_plot                     = '/scratch2/dicerbo/plot_test/exit/'
 path_file                     = '/scratch2/dicerbo/plot_test/toprint/t700/time_evolution_log10P4.7.dat'
 path_file2                    = '/scratch2/dicerbo/plot_test/toprint/t700/time_evolution_log10P3.5.dat'
 
-# global variables
-redshift          = 19.0
-Hubble            = 0.72
-h2                = Hubble * Hubble
-Omega0m           = 0.3
-Omega0l           = 0.7
-Omega0r           = 0.0
-BOLTZMANN         = 1.3806e-16  # erg/K
-PROTONMASS        = 1.6726e-24  # g
-GAMMA_MINUS1      = 5./3. - 1.
-HYDROGEN_MASSFRAC = 0.76
-mu_h              = 4./ (5. * HYDROGEN_MASSFRAC + 3.)  #  molecular weight of the hot phase
-mu_c              = 4./ (3. * HYDROGEN_MASSFRAC + 1.)  # molecular weight of the cold phase
-FracC             = 0.9
-NPCLASS           = 500
-rho_cr            = 1.9e-29 * ((1-Omega0m-Omega0l)*pow((1+redshift),2) + Omega0m*pow((1+redshift),3) + Omega0r*pow((1+redshift),4) + Omega0l) * h2
-
-
-UnitMass_in_g            = 1.989e43
-UnitLength_in_cm         = 3.085678e21
-UnitVelocity_in_cm_per_s = 1.0e5
-UnitTime_in_s            = UnitLength_in_cm / UnitVelocity_in_cm_per_s
-UnitEnergy_in_cgs        = UnitMass_in_g * pow(UnitLength_in_cm,2) / pow(UnitTime_in_s,2)
-UnitDensity_in_cgs       = UnitMass_in_g / pow(UnitLength_in_cm,3)
-
-SE_TO_T                  = GAMMA_MINUS1 * UnitEnergy_in_cgs * mu_h * PROTONMASS / BOLTZMANN / UnitMass_in_g
-T_TO_SE                  = 1.0/SE_TO_T
-Th2                      = 10.0
-FTHR                     = 1.e-6
-
 # global arrays: Temperature, H2OverDensity, H2Fraction, tcool to load UM's tables
 #                T in K, tcool in Gyr
 T          = None          # dimension 1x50
@@ -135,6 +105,7 @@ def plot_def(directory):
     
     #path's plot
     files = os.listdir(path_out+directory)
+    files.sort()
     fls = files[:]
     press = np.zeros(len(files), dtype = float)
     j = 0
@@ -164,7 +135,7 @@ def plot_def(directory):
     cdef = [colorsys.hsv_to_rgb(x/360., 1., 1.) for x in h]
     
     #plots
-    fig = plt.figure(figsize=(15,13))
+    fig = plt.figure(figsize=(18,16))
     figura = fig.add_subplot(2, 1, 1, adjustable='box', aspect = 1.1)
     plt.title('Paths')
     
