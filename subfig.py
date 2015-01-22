@@ -10,7 +10,8 @@ import colorsys
 
 matrix_Logdelta_LogT_H2       = 'matrix_modif_Logdelta_LogT_H2.dat'
 matrix_Logdelta_LogT_H2_tcool = 'matrix_modif_Logdelta_LogT_tcool.dat'
-path_out                      = '/scratch2/dicerbo/plot_test/prova/'
+#path_out                      = '/scratch2/dicerbo/plot_test/prova/'
+path_out                      = '/scratch2/dicerbo/plot_test/sim_def/'
 path_plot                     = '/scratch2/dicerbo/plot_test/newexit/'
 
 # global arrays: Temperature, H2OverDensity, H2Fraction, tcool to load UM's tables
@@ -31,7 +32,7 @@ def main():
     '''
     dirs = os.listdir(path_out)
     for d in dirs:
-        if string.count(d, 'jpg') == 0 and string.count(d, 't50') == 1:
+        if string.count(d, 'jpg') == 0:
             print '\n\tStart working on '+ d
             #adjust(path_out, d)
             plot_def(d)
