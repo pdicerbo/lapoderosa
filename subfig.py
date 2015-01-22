@@ -10,12 +10,8 @@ import colorsys
 
 matrix_Logdelta_LogT_H2       = 'matrix_modif_Logdelta_LogT_H2.dat'
 matrix_Logdelta_LogT_H2_tcool = 'matrix_modif_Logdelta_LogT_tcool.dat'
-path_in                       = '/scratch2/dicerbo/plot_test/old_toprint/'
 path_out                      = '/scratch2/dicerbo/plot_test/prova/'
-path_plot                     = '/scratch2/dicerbo/plot_test/exit/'
-#path_out                      = '/scratch2/dicerbo/plot_test/boundary/'
-path_file                     = '/scratch2/dicerbo/plot_test/toprint/t700/time_evolution_log10P4.7.dat'
-path_file2                    = '/scratch2/dicerbo/plot_test/toprint/t700/time_evolution_log10P3.5.dat'
+path_plot                     = '/scratch2/dicerbo/plot_test/newexit/'
 
 # global arrays: Temperature, H2OverDensity, H2Fraction, tcool to load UM's tables
 #                T in K, tcool in Gyr
@@ -26,7 +22,7 @@ t_cool     = None          # dimension 50x50
 
 
 def main():
-    global path_in; global path_out
+    global path_out
     '''
     directory = '/home/dicerbo/output/scratch2/plot_test/prova/prova1'
     if not os.path.exists(directory):
@@ -35,9 +31,9 @@ def main():
     '''
     dirs = os.listdir(path_out)
     for d in dirs:
-        if string.count(d, 'jpg') == 0:
+        if string.count(d, 'jpg') == 0 and string.count(d, 't50') == 1:
             print '\n\tStart working on '+ d
-            adjust(path_out, d)
+            #adjust(path_out, d)
             plot_def(d)
             print '\n\tEnd working on ' + d
 
@@ -86,12 +82,19 @@ def adjust(path, directory):
 
 def plot_def(directory):
     print '\n\tWithin plot function\n'
-    global path_in; global path_read; global path_out
-    # first plot
-    global matrix_Logdelta_LogT_H2
-    LoadMatrix(filename=matrix_Logdelta_LogT_H2)
-    global T ; global Dens ; global FH2
+    global path_read; global path_out
+    #Load tcool matrix
+    LoadMatrix(filename=matrix_Logdelta_LogT_H2_tcool)
+    global T ; global Dens ; global FH2; global t_cool
 
+    tcool = t_cool
+    tcool[tcool > 0.] = np.log10(tcool[tcool > 0.])
+    v_min = -5
+    v_max = 7.
+    tcool[tcool == 0.] = v_min
+    tcool[tcool > v_max] = v_max
+    tcool[tcool <= v_min] = v_max
+    '''
     H2 = FH2
     H2[H2 > 0.] = np.log10(H2[H2 > 0.])
     v_min = -6
@@ -99,6 +102,7 @@ def plot_def(directory):
     H2[H2 == 0.] = v_min
     H2[H2 > v_max] = v_max
     H2[H2 < v_min] = v_min
+    '''
     numlev = 15
     dmag0 = (v_max - v_min) / float(numlev)
     levels0 = np.arange(numlev) * dmag0 + v_min
@@ -137,38 +141,41 @@ def plot_def(directory):
     #plots
     fig = plt.figure(figsize=(18,16))
     figura = fig.add_subplot(2, 1, 1, adjustable='box', aspect = 1.1)
-    plt.title('Paths')
-    
-    figura = plt.contourf(Dens,T,H2,levels0,extend='both', cmap = cm.hot)
+    plt.title('Paths in Phase Diagram', fontsize = 28)
+    #figura = plt.contourf(Dens,T,H2,levels0,extend='both', cmap = cm.hot)
+    figura = plt.contourf(Dens,T,tcool,levels0,extend='both', cmap = cm.hot_r)
     ax1 = plt.gca()
     ax1.set_xlim([Dens.min(), Dens.max()])
     ax1.set_ylim([1., 5.])
-    cbar = plt.colorbar(figura,format='%3.1f', shrink=0.7)#, orientation = 'horizontal')
+    cbar = plt.colorbar(figura,format='%3.1f', shrink=0.8)
     cbar.set_ticks(np.linspace(v_min,v_max,num=levels0.size,endpoint=True))
-    cbar.set_label('H$_{2}$ fraction',fontsize=20)
+    #cbar.set_label('H$_{2}$ fraction',fontsize=20)
+    cbar.set_label('t_cool',fontsize=20)
     print "\n\tUmberto's matrix plotted\n"
         
     k = 0
     for name in filedef:
         print '\tPlotting ' + name[(len(directory)+1):] + ' file'
-        #figura = plt.plotfile(path_out+name, delimiter = '\t', cols=(1, 2), comments='#', color = cdef[k], marker='.', mfc = cdef[k], mec = cdef[k], label = 'Log10P = '+str(pdef[k]), newfig=False)
+        #figura = plt.plotfile(path_out+name, delimiter = '\t', cols=(1, 2), comments='#', color = cdef[k], marker='.', 
+                                         #mfc = cdef[k], mec = cdef[k], label = 'Log10P = '+str(pdef[k]), newfig=False)
         data = np.loadtxt(path_out+name, comments = '#'); data = data.T
         rho = data[1, :]; tmp = data[2, :]
         plt.plot(rho, tmp, color = cdef[k], marker='.', mfc = cdef[k], mec = cdef[k], label = 'Log10P = '+str(pdef[k]))
         k += 1
     lgd = plt.legend(bbox_to_anchor=(1.75, 0.4), loc=5, borderaxespad=1.)
     
-    plt.xlabel('log10 $Rho$',fontsize=20) ; plt.ylabel('Log10 T[k]',fontsize=20)
+    plt.xlabel('log10 $\\rho$',fontsize=20) ; plt.ylabel('Log10 T[k]',fontsize=20)
 
     #Blitz&Rosolowsky plot
     figura2 = fig.add_subplot(2, 1, 2, adjustable='box', aspect = 1.3)
+    plt.title('Blitz & Rosolowsky', fontsize = 28)
     ax2 = plt.gca()
     newm = np.loadtxt(br, comments = '#'); newm = newm.T
     press = newm[0, :]
     br_ro = newm[3, :]
     fh2   = newm[4, :]
     ax2.set_xlim([3., 6.])
-    ax2.set_ylim([0., 1.])
+    ax2.set_ylim([0., 1.02])
     plt.plot(press, br_ro, 'k-')
     plt.plot(press, fh2, 'b-')
     #scale figure2
