@@ -10,10 +10,8 @@ import colorsys
 
 matrix_Logdelta_LogT_H2       = 'matrix_modif_Logdelta_LogT_H2.dat'
 matrix_Logdelta_LogT_H2_tcool = 'matrix_modif_Logdelta_LogT_tcool.dat'
-#path_out                      = '/scratch2/dicerbo/plot_test/prova/'
-path_out                      = '/scratch2/dicerbo/plot_test/sim_def/'
-path_plot                     = '/scratch2/dicerbo/plot_test/newexit/'
-
+path_out                      = '/scratch2/dicerbo/plot_path/sim_def/'
+path_plot                     = '/scratch2/dicerbo/plot_path/exit/'
 # global arrays: Temperature, H2OverDensity, H2Fraction, tcool to load UM's tables
 #                T in K, tcool in Gyr
 T          = None          # dimension 1x50
@@ -24,13 +22,9 @@ t_cool     = None          # dimension 50x50
 
 def main():
     global path_out
-    '''
-    directory = '/home/dicerbo/output/scratch2/plot_test/prova/prova1'
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-        print '%s created successfully'%(directory)
-    '''
+
     dirs = os.listdir(path_out)
+    dirs.sort()
     for d in dirs:
         if string.count(d, 'jpg') == 0:
             print '\n\tStart working on '+ d
@@ -163,7 +157,7 @@ def plot_def(directory):
         rho = data[1, :]; tmp = data[2, :]
         plt.plot(rho, tmp, color = cdef[k], marker='.', mfc = cdef[k], mec = cdef[k], label = 'Log10P = '+str(pdef[k]))
         k += 1
-    lgd = plt.legend(bbox_to_anchor=(1.75, 0.4), loc=5, borderaxespad=1.)
+    lgd = plt.legend(bbox_to_anchor=(1.55, 0.5), loc=5, borderaxespad=1.)
     
     plt.xlabel('log10 $\\rho$',fontsize=20) ; plt.ylabel('Log10 T[k]',fontsize=20)
 
