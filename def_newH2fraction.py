@@ -422,7 +422,7 @@ def MolecularProfileTc():
 
     Pmass = 2.78e-4; #GA1 initial mass
     Density = 0.05; #in the middle of SF MUPPI cloud in phase diagram
-    T_a = 900.
+    T_a = 500.
     if os.path.exists(path_out+'t'+str(T_a)):
         print 'path %s exist'%('t'+str(T_a))
     else:
