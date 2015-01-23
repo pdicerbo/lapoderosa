@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 matrix_Logdelta_LogT_H2       = 'matrix_modif_Logdelta_LogT_H2.dat'
 matrix_Logdelta_LogT_H2_tcool = 'matrix_modif_Logdelta_LogT_tcool.dat'
-path_out                      = '/scratch2/dicerbo/plot_test/sim_def/'
+path_out                      = '/scratch2/dicerbo/plot_path/sim_def/'
 # global variables
 redshift          = 19.0
 Hubble            = 0.72
@@ -422,7 +422,7 @@ def MolecularProfileTc():
 
     Pmass = 2.78e-4; #GA1 initial mass
     Density = 0.05; #in the middle of SF MUPPI cloud in phase diagram
-    T_a = 1000.
+    T_a = 900.
     if os.path.exists(path_out+'t'+str(T_a)):
         print 'path %s exist'%('t'+str(T_a))
     else:
@@ -531,16 +531,16 @@ def time_int(press, Pmass, Density, T_a, tcool, fh2, time, tstep, path):
             elif mh2/(mh2 + ma) > 1.e-2 and np.log10(Temp) < 3.:
                 if index == 10:
                     if filectrl == 0:
-                        line = '%e\t%e\t%e\n'%(0, dmax, np.log10(Temp))
-                        line += '%e\t%e\t%e\n'%(8e3, dmax, np.log10(Temp))
+                        line = '%e\t%e\t%e\n'%(0, np.log10(Rho_a), np.log10(Temp))
+                        line += '%e\t%e\t%e\n'%(8e3, np.log10(Rho_a), np.log10(Temp))
                         line += '%e\t%e\t%e\n'%(16e3,np.log10(Rho_a), np.log10(Temp))
                         wr.write(line);
                     elif filectrl == 1:
-                        line = '%e\t%e\t%e\n'%(8e3, dmax, np.log10(Temp))
-                        line += '%e\t%e\t%e\n'%(16e3, dmax, np.log10(Temp))
+                        line = '%e\t%e\t%e\n'%(8e3, np.log10(Rho_a), np.log10(Temp))
+                        line += '%e\t%e\t%e\n'%(16e3, np.log10(Rho_a), np.log10(Temp))
                         wr.write(line);
                     elif filectrl == 2:
-                        line = '%e\t%e\t%e\n'%(16e3, dmax, np.log10(Temp))
+                        line = '%e\t%e\t%e\n'%(16e3, np.log10(Rho_a), np.log10(Temp))
                         wr.write(line);                        
                     wr.flush(); wr.close()
                     t_atomic = Temp
