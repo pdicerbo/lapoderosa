@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 matrix_Logdelta_LogT_H2       = 'matrix_modif_Logdelta_LogT_H2.dat'
 matrix_Logdelta_LogT_H2_tcool = 'matrix_modif_Logdelta_LogT_tcool.dat'
-path_out                      = '/scratch2/dicerbo/plot_path/first/'
+path_out                      = '/scratch2/dicerbo/plot_path/second/'
 # global variables
 redshift          = 19.0
 Hubble            = 0.72
@@ -421,7 +421,7 @@ def MolecularProfileTc():
 
     Pmass = 2.78e-4; #GA1 initial mass
     Density = 0.05; #in the middle of SF MUPPI cloud in phase diagram
-    T_a = 1300.
+    T_a = 1900.
     if os.path.exists(path_out+'T'+str(T_a)):
         print '\tpath %s exist'%('t'+str(T_a))
     else:
@@ -537,6 +537,9 @@ def time_int(press, Pmass, Density, T_a, tcool, fh2, time, tstep, path):
                     elif filectrl == 2:
                         line = '%e\t%e\t%e\t%e\n'%(tstep*6,np.log10(Rho_a), np.log10(Temp), 1.)
                         wr.write(line)
+                    else:
+                        line = '%e\t%e\t%e\t%e\n'%(t, np.log10(Rho_a), np.log10(Temp), 1.)
+                        wr.write(line)
                     line = '#mass = %e   ->   return 1\n' % (ma)
                     line += '#time = %e in %g steps\n' % (t, t/tstep); wr.write(line)
                     wr.flush(); wr.close()
@@ -568,7 +571,7 @@ def time_int(press, Pmass, Density, T_a, tcool, fh2, time, tstep, path):
                     wr.flush(); wr.close()
                     t_atomic = Temp
                     dens_a = Rho_a
-                    mmol = mh2
+                    mmol = mass*FracC
                     index = 0
                 filectrl = 0
                 return 1.
