@@ -10,8 +10,8 @@ import colorsys
 
 matrix_Logdelta_LogT_H2       = 'matrix_modif_Logdelta_LogT_H2.dat'
 matrix_Logdelta_LogT_H2_tcool = 'matrix_modif_Logdelta_LogT_tcool.dat'
-path_out                      = '/scratch2/dicerbo/plot_path/sim_def/'
-path_plot                     = '/scratch2/dicerbo/plot_path/exit/'
+path_out                      = '/scratch2/dicerbo/plot_path/first/'
+path_plot                     = '/scratch2/dicerbo/plot_path/exit/first/'
 # global arrays: Temperature, H2OverDensity, H2Fraction, tcool to load UM's tables
 #                T in K, tcool in Gyr
 T          = None          # dimension 1x50
@@ -111,7 +111,7 @@ def plot_def(directory):
     for name in files:
         if string.count(name, 'time') != 0:
             fls[j] = directory+'/'+name
-            press[j] = float(name[(len(name)-7):-4])
+            press[j] = float(name[(len(name)-8):-4])
             j += 1
         else:
             br = path_out + directory + '/' + name
