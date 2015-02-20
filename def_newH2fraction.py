@@ -3,9 +3,9 @@ import os
 from bisect import bisect_left # for BilinearInterpolation
 import matplotlib.pyplot as plt
 
-matrix_Logdelta_LogT_H2       = 'matrix_modif_Logdelta_LogT_H2.dat'
-matrix_Logdelta_LogT_H2_tcool = 'matrix_modif_Logdelta_LogT_tcool.dat'
-path_out                      = '/scratch2/dicerbo/plot_path/second/'
+matrix_Logdelta_LogT_H2       = 'matrix_newdef_Logdelta_LogT_H2.dat'
+matrix_Logdelta_LogT_H2_tcool = 'matrix_newdef_Logdelta_LogT_tcool.dat'
+path_out                      = '/scratch2/dicerbo/plot_path/very_def/'
 # global variables
 redshift          = 19.0
 Hubble            = 0.72
@@ -270,69 +270,72 @@ def BilinearInterpolation(x_values, y_values, values, x, y):
     """
     x = np.log10(x)
     y = np.log10(y)
-    j = bisect_left(x_values, x) - 1
-    i = bisect_left(y_values, y) - 1
-    #condizioni di uscita PROVVISORIE
-    if ((x_values.max() - x) <= 0. or (x_values.min() - x) >= 0.) and ((y_values.max() - y) <= 0 or (y_values.min() - y) >= 0): 
-        return 0.
-    elif ((x_values.max() - x) >= 0. and (x_values.min() - x) <= 0.) and ((y_values.max() - y) >= 0 and (y_values.min() - y) <= 0):
+    j = bisect_left(x_values, x)
+    i = bisect_left(y_values, y)
+    #case = 0
+    if ((x_values.max() - x) < 0. or (x_values.min() - x) > 0.) and ((y_values.max() - y) < 0. or (y_values.min() - y) > 0.): 
+        if values.max() < 5.e-1:
+            return 0.
+        else:
+            return 1.
+    elif ((x_values.max() - x) > 0. and (x_values.min() - x) < 0.) and ((y_values.max() - y) > 0. and (y_values.min() - y) < 0.):
         #tipical case
-        x1 = x_values[j:j + 1]
-        x2 = x_values[j + 1:j + 2]
-        y1 = y_values[i:i + 1] 
-        y2 = y_values[i + 1:i + 2]
-        f1, f3 = values[i][j:j + 2]
-        f2, f4 = values[i + 1][j:j+2]
-    
+        x1, x2 = x_values[j-1:j+1]
+        y1, y2 = y_values[i-1:i+1] 
+        f1, f3 = values[i-1][j-1:j+1]
+        f2, f4 = values[i][j-1:j+1]
         dx = x - x1; dy = y - y1
         lx = x2 - x1; ly = y2 - y1
 
-    elif x_values.max() < x:
-        x1 = x_values[j - 1:j]
-        x2 = x_values[j:j + 1]
-        y1 = y_values[i:i + 1]
-        y2 = y_values[i + 1:i + 2]
-        f1 = values[i][j]; f3 = 0.
-        f2 = values[i + 1][j]; f4 = 0.
-        
+    elif x_values.max() <= x:
+        x1, x2 = x_values[j-2:j]
+        y1, y2 = y_values[i-1:i+1]
+        if x_values.max() < x:
+            f1 = values[i-1][j-1]; f3 = 0.
+            f2 = values[i][j-1]; f4 = 0.
+        else:
+            f1, f3 = values[i-1][j-1:j+1]
+            f2, f4 = values[i][j-1:j+1]
         dx = 0.; dy = y - y1
         lx = x2 - x1; ly = y2 - y1
 
-    elif x_values.min() > x:
-        x1 = x_values[j:j + 1]
-        x2 = x_values[j + 1:j + 2]
-        y1 = y_values[i:i + 1]
-        y2 = y_values[i + 1:i + 2]
-        f1 = 0.; f3 = values[i][j]
-        f2 = 0.; f4 = values[i + 1][j]
-
+    elif x_values.min() >= x:
+        x1 = x_values[j:j + 2]
+        y1 = y_values[i-1:i+1]
+        if x_values.min() > x:
+            f1 = 0.; f3 = values[i-1][j]
+            f2 = 0.; f4 = values[i][j]
+        else:
+            f1, f3 = values[i-1][j:j+2]
+            f2, f4 = values[i][j:j+2]
         dx = 0.; dy = y - y1
         lx = x2 - x1; ly = y2 - y1
 
-    elif y_values.min() > y:
-        x1 = x_values[j:j + 1]
-        x2 = x_values[j + 1:j + 2]
-        y1 = y_values[i:i + 1]
-        y2 = y_values[i + 1:i + 2]
-        f1 = 0.; f3 = 0.
-        f2 = values[i][j]; f4 = values[i][j + 1]
-
-        dx = x - x1; dy = 0.
+    elif y_values.min() >= y:
+        x1, x2 = x_values[j-1:j+1]
+        y1, y2 = y_values[i:i+2]
+        if y_values.min() > y:
+            f1 = 0.; f3 = 0.
+            f2, f4 = values[i][j-1:j+1]
+        else:
+            f1, f3 = values[i][j-1:j+1]
+            f2, f4 = values[i+1][j-1:j+1]
+        dx = x - x1; dy = y - y1
         lx = x2 - x1; ly = y2 - y1
 
-    elif y_values.max() < y:
-        x1 = x_values[j:j + 1]
-        x2 = x_values[j + 1:j + 2]
-        y1 = y_values[i - 1:i]
-        y2 = y_values[i:i + 1]
-        f1 = values[i][j]; f3 = values[i][j + 1]
-        f2 = 0.; f4 = 0.;
-
+    elif y_values.max() <= y:
+        x1, x2 = x_values[j-1:j+1]
+        y1, y2 = y_values[i-2:i]
+        if y_values.max() < y:
+            f1, f3 = values[i-1][j-1:j+1]
+            f2 = 0.; f4 = 0.
+        else:
+            f1, f3 = values[i-1][j-1:j+1]
+            f2, f4 = values[i][j-1:j+1]
         dx = x - x1; dy = 0.
         lx = x2 - x1; ly = y2 - y1
 
     f_fit = f1 + (f3 - f1)*dx/lx + (f2 - f1)*dy/ly + (f1 + f4 - f2 - f3)*dx*dy/(lx*ly)
-
     return f_fit
 
 def molecular_fraction(pressure):
@@ -421,7 +424,7 @@ def MolecularProfileTc():
 
     Pmass = 2.78e-4; #GA1 initial mass
     Density = 0.05; #in the middle of SF MUPPI cloud in phase diagram
-    T_a = 1900.
+    T_a = 2100.
     if os.path.exists(path_out+'T'+str(T_a)):
         print '\tpath %s exist'%('t'+str(T_a))
     else:
